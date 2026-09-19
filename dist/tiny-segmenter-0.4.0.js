@@ -1,10 +1,45 @@
-// TinySegmenter 0.3.1 -- Super compact Japanese tokenizer in Javascript
+// TinySegmenter 0.4.0 -- Super compact Japanese tokenizer in Javascript
 // (c) 2008 Taku Kudo <taku@chasen.org>
 // Modifications (c) 2026 Shunsuke Kanda <shnsk.knd@gmail.com>
 // TinySegmenter is freely distributable under the terms of a new BSD licence.
 // For details, see http://chasen.org/~taku/software/TinySegmenter/LICENCE.txt
 
-function TinySegmenter() {
+function TinySegmenter(options) {
+    var joinNumericSequences = options && options.joinNumericSequences;
+    if (joinNumericSequences !== undefined && typeof joinNumericSequences != "boolean") {
+        throw new TypeError("options.joinNumericSequences must be a boolean");
+    }
+    this.joinNumericSequences_ = joinNumericSequences === true;
+
+    var userWords = (options && options.userWords) || [];
+    if (!Array.isArray(userWords)) {
+        throw new TypeError("options.userWords must be an array of strings");
+    }
+    // Trie of user words. Each node maps a character to its child node;
+    // the empty-string key marks the end of a word.
+    this.userWordTrie_ = null;
+    for (var k = 0; k < userWords.length; ++k) {
+        var w = userWords[k];
+        if (typeof w != "string") {
+            throw new TypeError("options.userWords must be an array of strings");
+        }
+        // Single-character words have no internal boundary to join.
+        if (w.length <= 1) {
+            continue;
+        }
+        if (this.userWordTrie_ == null) {
+            this.userWordTrie_ = Object.create(null);
+        }
+        var node = this.userWordTrie_;
+        for (var j = 0; j < w.length; ++j) {
+            if (node[w[j]] === undefined) {
+                node[w[j]] = Object.create(null);
+            }
+            node = node[w[j]];
+        }
+        node[""] = true;
+    }
+
     var patterns = {
         "[一二三四五六七八九十百千万億兆]":"M",
         "[一-龠々〆ヵヶ]":"H",
@@ -80,6 +115,34 @@ TinySegmenter.prototype.ts_ = function(v) {
     return 0;
 }
 
+// Added to the original TinySegmenter: returns a flag per character position,
+// true if the boundary just before that character lies inside a user word.
+TinySegmenter.prototype.joinedBoundaries_ = function(input) {
+    var joined = [];
+    var root = this.userWordTrie_;
+    if (root == null) {
+        return joined;
+    }
+    for (var pos = 0; pos < input.length; ++pos) {
+        // Find the longest user word starting at pos.
+        var node = root;
+        var longest = 0;
+        for (var j = pos; j < input.length; ++j) {
+            node = node[input[j]];
+            if (node === undefined) {
+                break;
+            }
+            if (node[""] === true) {
+                longest = j - pos + 1;
+            }
+        }
+        for (var j = 1; j < longest; ++j) {
+            joined[pos + j] = true;
+        }
+    }
+    return joined;
+}
+
 TinySegmenter.prototype.segment = function(input) {
     if (input == null || input == undefined || input == "") {
         return [];
@@ -88,6 +151,7 @@ TinySegmenter.prototype.segment = function(input) {
     var seg = ["B3","B2","B1"];
     var ctype = ["O","O","O"];
     var o = input.split("");
+    var joined = this.joinedBoundaries_(input);
     for (i = 0; i < o.length; ++i) {
         seg.push(o[i]);
         ctype.push(this.ctype_(o[i]))
@@ -160,9 +224,12 @@ TinySegmenter.prototype.segment = function(input) {
         score += this.ts_(this.TQ3__[p3 + c1 + c2 + c3]);
         score += this.ts_(this.TQ4__[p3 + c2 + c3 + c4]);
         var p = "O";
-        // Added to the original TinySegmenter: keep consecutive digits and kanji numerals together.
-        var isNumericSequence = (c3 == "N" && c4 == "N") || (c3 == "M" && c4 == "M");
-        if (score > 0 && !isNumericSequence) {
+        // Added to the original TinySegmenter: optionally keep consecutive digits and kanji numerals together.
+        var isNumericSequence = this.joinNumericSequences_ &&
+            ((c3 == "N" && c4 == "N") || (c3 == "M" && c4 == "M"));
+        // Added to the original TinySegmenter: never split inside a user word.
+        var isInUserWord = joined[i - 3] === true;
+        if (score > 0 && !isNumericSequence && !isInUserWord) {
             result.push(word);
             word = "";
             p = "B";
