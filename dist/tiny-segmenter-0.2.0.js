@@ -160,8 +160,9 @@ TinySegmenter.prototype.segment = function(input) {
         score += this.ts_(this.TQ3__[p3 + c1 + c2 + c3]);
         score += this.ts_(this.TQ4__[p3 + c2 + c3 + c4]);
         var p = "O";
-        // Added to the original TinySegmenter: keep consecutive digits together.
-        if (score > 0 && !(c3 == "N" && c4 == "N")) {
+        // Added to the original TinySegmenter: keep consecutive digits and kanji numerals together.
+        var isNumericSequence = (c3 == "N" && c4 == "N") || (c3 == "M" && c4 == "M");
+        if (score > 0 && !isNumericSequence) {
             result.push(word);
             word = "";
             p = "B";
