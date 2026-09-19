@@ -26,7 +26,14 @@ console.log(segments.join(" | "));
 
 ### Numeric sequences
 
-Unlike the original TinySegmenter, this version keeps consecutive half-width digits, full-width digits, and kanji numerals in a single segment. For example, `1280` and `千二百八十` remain whole, while `一億2000万` is segmented as `一億 | 2000 | 万`.
+The original TinySegmenter often splits numbers into individual characters (e.g., `1280` is segmented as `1 | 2 | 8 | 0`). This version accepts `joinNumericSequences` to keep consecutive half-width digits, full-width digits, and kanji numerals in a single segment. It is disabled by default, so the default behavior matches the original.
+
+```javascript
+var segmenter = new TinySegmenter({ joinNumericSequences: true });
+console.log(segmenter.segment("価格は1280円です").join(" | ")); // 価格 | は | 1280 | 円 | です
+```
+
+With this option, `1280` and `千二百八十` remain whole, while `一億2000万` is segmented as `一億 | 2000 | 万`.
 
 ### User words
 
