@@ -137,6 +137,42 @@
     cursor: pointer;
   }
   @media (prefers-color-scheme: dark) { .joined button { color: #10131a; } }
+  .options {
+    display: grid;
+    gap: 14px;
+    margin: 0 0 32px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .options code { font-size: 0.9em; }
+  .option-desc { display: block; font-size: 0.85rem; color: var(--muted); }
+  .check { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+  .check input { margin: 5px 0 0; accent-color: var(--accent); }
+  .options label { margin: 0; font-size: 1rem; font-weight: 400; color: var(--text); text-transform: none; letter-spacing: 0; }
+  .field input {
+    width: 100%;
+    margin-top: 6px;
+    padding: 6px 10px;
+    font: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+  .call {
+    margin: 0;
+    padding: 8px 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85rem;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--muted);
+    background: var(--bg);
+    border-radius: 6px;
+  }
   footer { margin-top: 48px; font-size: 0.85rem; color: var(--muted); }
   footer code { font-size: 0.85em; }
 </style>
@@ -161,6 +197,26 @@
     <button type="button">東京スカイツリーの高さは634メートルです。</button>
     <button type="button">一億2000万円を千二百八十回に分けて払う</button>
     <button type="button">GitHubでPull Requestを作成してからmainにmergeします。</button>
+    <button type="button">朝ごはんに目玉焼きを食べた</button>
+  </div>
+
+  <span class="label">Options</span>
+  <div class="options">
+    <label class="check" for="join-numeric">
+      <input type="checkbox" id="join-numeric">
+      <span>
+        <code>joinNumericSequences</code>
+        <span class="option-desc">Keep consecutive numerals in a single segment.</span>
+      </span>
+    </label>
+    <div class="field">
+      <label for="user-words">
+        <code>userWords</code>
+        <span class="option-desc">Keep the specified words from being split. Separate words with spaces or commas.</span>
+      </label>
+      <input type="text" id="user-words" spellcheck="false" placeholder="例: 朝ごはん, 目玉焼き">
+    </div>
+    <pre class="call" id="call"></pre>
   </div>
 
   <div class="result-head">
@@ -182,16 +238,41 @@
   </footer>
 </main>
 
-<script src="dist/tiny-segmenter-0.3.1.js"></script>
+<!-- Load the latest lib so the demo can try options that are not yet in dist -->
+<script>var module = { exports: {} };</script>
+<script src="lib/index.js"></script>
 <script>
   (function () {
     var segmenter = new TinySegmenter();
+    var joinNumeric = document.getElementById("join-numeric");
+    var userWordsInput = document.getElementById("user-words");
+    var call = document.getElementById("call");
     var input = document.getElementById("input");
     var chips = document.getElementById("chips");
     var count = document.getElementById("count");
     var joined = document.getElementById("joined");
     var copy = document.getElementById("copy");
     var clear = document.getElementById("clear");
+
+    function parseUserWords() {
+      return userWordsInput.value.split(/[\s,、，]+/).filter(Boolean);
+    }
+
+    function updateSegmenter() {
+      var options = {};
+      var parts = [];
+      if (joinNumeric.checked) {
+        options.joinNumericSequences = true;
+        parts.push("joinNumericSequences: true");
+      }
+      var words = parseUserWords();
+      if (words.length > 0) {
+        options.userWords = words;
+        parts.push("userWords: [" + words.map(function (w) { return JSON.stringify(w); }).join(", ") + "]");
+      }
+      segmenter = new TinySegmenter(options);
+      call.textContent = "new TinySegmenter(" + (parts.length ? "{ " + parts.join(", ") + " }" : "") + ")";
+    }
 
     function render() {
       var text = input.value;
@@ -215,6 +296,8 @@
     }
 
     input.addEventListener("input", render);
+    joinNumeric.addEventListener("change", function () { updateSegmenter(); render(); });
+    userWordsInput.addEventListener("input", function () { updateSegmenter(); render(); });
 
     document.getElementById("examples").addEventListener("click", function (e) {
       if (e.target.tagName !== "BUTTON") return;
@@ -236,6 +319,7 @@
       });
     });
 
+    updateSegmenter();
     render();
   })();
 </script>
