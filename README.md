@@ -22,6 +22,17 @@ var segments = segmenter.segment("私の名前は中野です");
 console.log(segments.join(" | "));
 ```
 
+### User words
+
+Pass `userWords` to keep specific words from being split. A user word is never split internally, while the boundaries at its edges are still decided by the model.
+
+```javascript
+var segmenter = new TinySegmenter({ userWords: ["契約", "業務委託"] });
+console.log(segmenter.segment("業務委託契約").join(" | ")); // 業務委託 | 契約
+```
+
+Without `userWords`, the same input is segmented as `業務委 | 託契 | 約`. If user words overlap in the input, no boundary inside any of them is split.
+
 ## Differences from the original
 
 Unlike the original TinySegmenter, this version keeps consecutive half-width digits, full-width digits, and kanji numerals in a single segment. For example, `1280` and `千二百八十` remain whole, while `一億2000万` is segmented as `一億 | 2000 | 万`.
