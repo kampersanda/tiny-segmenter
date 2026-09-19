@@ -39,7 +39,7 @@ console.log(segmenter.segment("雪だるまを作る").join(" | ")); // 雪だ�
 
 Without `userWords`, the same input is segmented as `雪 | だる | ま | を | 作る`. If user words overlap in the input, no boundary inside any of them is split.
 
-Each call to `segment` searches the input for every user word, so the extra cost grows in proportion to the number of user words times the input length. A few hundred words have little effect, but large lists slow segmentation noticeably. In one measurement (Node.js 24, 1,000-character input, user words sharing characters with the input), segmentation took about 1.1 ms with no user words, 1.5 ms with 1,000, and 5 ms with 10,000.
+User words are stored in a trie when the segmenter is constructed, so the speed of `segment` hardly depends on the number of user words. In one measurement (Node.js 24, 1,000-character input), segmentation took about 1.1 ms both with no user words and with 100,000 user words. Building the trie adds a one-time cost to the constructor, about 20 ms for 100,000 words.
 
 ## License
 
