@@ -1,14 +1,18 @@
 {
-  "name": "tiny-segmenter",
-  "version": "0.2.0",
-  "description": "Super compact Japanese tokenizer in Javascript. http://chasen.org/~taku/software/TinySegmenter/",
+  "name": "@kampersanda/tiny-segmenter",
+  "version": "0.3.0",
+  "description": "A compact Japanese tokenizer based on Taku Kudo's TinySegmenter",
   "main": "lib/index.js",
+  "files": [
+    "lib",
+    "dist"
+  ],
   "scripts": {
     "test": "node test/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/leungwensen/tiny-segmenter.git"
+    "url": "git+https://github.com/kampersanda/tiny-segmenter.git"
   },
   "keywords": [
     "tiny",
@@ -17,9 +21,12 @@
     "segmentalization"
   ],
   "author": "Taku Kudo <taku@chasen.org>",
-  "license": "SEE LICENSE IN http://chasen.org/~taku/software/TinySegmenter/LICENCE.txt",
+  "license": "(BSD-3-Clause AND MIT)",
   "bugs": {
-    "url": "https://github.com/leungwensen/tiny-segmenter/issues"
+    "url": "https://github.com/kampersanda/tiny-segmenter/issues"
   },
-  "homepage": "https://github.com/leungwensen/tiny-segmenter#readme"
+  "homepage": "https://github.com/kampersanda/tiny-segmenter#readme",
+  "publishConfig": {
+    "access": "public"
+  }
 }
