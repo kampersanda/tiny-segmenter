@@ -23,3 +23,7 @@ assert.deepEqual(userSegmenter.segment("価格は1280円です"), ["価格", "�
 assert.deepEqual(new TinySegmenter({ userWords: [] }).segment("雪だるまを作る"), segmenter.segment("雪だるまを作る"));
 assert.throws(function () { new TinySegmenter({ userWords: "新幹線" }); }, TypeError);
 assert.throws(function () { new TinySegmenter({ userWords: [1] }); }, TypeError);
+// A word that is a prefix of another, overlapping words, and a partial match.
+assert.deepEqual(new TinySegmenter({ userWords: ["雪だ", "雪だるま"] }).segment("雪だるまを作る"), ["雪だるま", "を", "作る"]);
+assert.deepEqual(new TinySegmenter({ userWords: ["雪だる", "だるま"] }).segment("雪だるまを作る"), ["雪だるま", "を", "作る"]);
+assert.deepEqual(new TinySegmenter({ userWords: ["雪だるま"] }).segment("雪だる"), segmenter.segment("雪だる"));

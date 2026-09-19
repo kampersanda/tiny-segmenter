@@ -39,8 +39,6 @@ console.log(segmenter.segment("雪だるまを作る").join(" | ")); // 雪だ�
 
 Without `userWords`, the same input is segmented as `雪 | だる | ま | を | 作る`. If user words overlap in the input, no boundary inside any of them is split.
 
-Each call to `segment` searches the input for every user word, so the extra cost grows in proportion to the number of user words times the input length. A few hundred words have little effect, but large lists slow segmentation noticeably. In one measurement (Node.js 24, 1,000-character input, user words sharing characters with the input), segmentation took about 1.1 ms with no user words, 1.5 ms with 1,000, and 5 ms with 10,000.
-
 ## License
 
 The original TinySegmenter implementation is distributed under the BSD 3-Clause License. The npm packaging and related changes inherited by this repository are distributed under the MIT License. See [LICENSE](LICENSE) for details.
