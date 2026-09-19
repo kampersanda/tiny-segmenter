@@ -27,11 +27,11 @@ console.log(segments.join(" | "));
 Pass `userWords` to keep specific words from being split. A user word is never split internally, while the boundaries at its edges are still decided by the model.
 
 ```javascript
-var segmenter = new TinySegmenter({ userWords: ["契約", "業務委託"] });
-console.log(segmenter.segment("業務委託契約").join(" | ")); // 業務委託 | 契約
+var segmenter = new TinySegmenter({ userWords: ["新幹線", "雪だるま"] });
+console.log(segmenter.segment("雪だるまを作る").join(" | ")); // 雪だるま | を | 作る
 ```
 
-Without `userWords`, the same input is segmented as `業務委 | 託契 | 約`. If user words overlap in the input, no boundary inside any of them is split.
+Without `userWords`, the same input is segmented as `雪 | だる | ま | を | 作る`. If user words overlap in the input, no boundary inside any of them is split.
 
 ## Differences from the original
 

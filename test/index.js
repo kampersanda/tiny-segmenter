@@ -13,13 +13,13 @@ assert.deepEqual(segmenter.segment("一億二千万"), ["一億二千万"]);
 assert.deepEqual(segmenter.segment("一億2000万"), ["一億", "2000", "万"]);
 
 // userWords: never split inside a user word; the word's edges are left to the model.
-assert.deepEqual(segmenter.segment("契約書を確認する"), ["契", "約書", "を", "確認", "する"]);
-var userSegmenter = new TinySegmenter({ userWords: ["契約", "業務委託"] });
-assert.deepEqual(userSegmenter.segment("契約書を確認する"), ["契約", "書", "を", "確認", "する"]);
-assert.deepEqual(userSegmenter.segment("業務委託契約"), ["業務委託", "契約"]);
-assert.deepEqual(userSegmenter.segment("新しい契約を結ぶ"), ["新しい", "契約", "を", "結ぶ"]);
-assert.deepEqual(userSegmenter.segment("契約と契約"), ["契約", "と", "契約"]);
+assert.deepEqual(segmenter.segment("雪だるまを作る"), ["雪", "だる", "ま", "を", "作る"]);
+var userSegmenter = new TinySegmenter({ userWords: ["新幹線", "雪だるま"] });
+assert.deepEqual(userSegmenter.segment("雪だるまを作る"), ["雪だるま", "を", "作る"]);
+assert.deepEqual(userSegmenter.segment("新幹線で帰る"), ["新幹線", "で", "帰る"]);
+assert.deepEqual(userSegmenter.segment("新幹線と新幹線"), ["新幹線", "と", "新幹線"]);
+assert.deepEqual(userSegmenter.segment("新幹線誕生日"), ["新幹線", "誕生", "日"]);
 assert.deepEqual(userSegmenter.segment("価格は1280円です"), ["価格", "は", "1280", "円", "です"]);
-assert.deepEqual(new TinySegmenter({ userWords: [] }).segment("契約書を確認する"), segmenter.segment("契約書を確認する"));
-assert.throws(function () { new TinySegmenter({ userWords: "契約" }); }, TypeError);
+assert.deepEqual(new TinySegmenter({ userWords: [] }).segment("雪だるまを作る"), segmenter.segment("雪だるまを作る"));
+assert.throws(function () { new TinySegmenter({ userWords: "新幹線" }); }, TypeError);
 assert.throws(function () { new TinySegmenter({ userWords: [1] }); }, TypeError);
