@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TinySegmenter Demo</title>
+<meta name="description" content="Try @kampersanda/tiny-segmenter, a compact Japanese tokenizer, in your browser.">
+<style>
+  :root {
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --text: #1f1f1d;
+    --muted: #6b6b66;
+    --border: #deddd7;
+    --accent: #2f6fdb;
+    --chip-bg: #eef3fc;
+    --chip-border: #c9d8f3;
+    --chip-alt-bg: #f6f1e7;
+    --chip-alt-border: #e5d9bf;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161615;
+      --surface: #1f1f1d;
+      --text: #ecebe6;
+      --muted: #a09f98;
+      --border: #3a3935;
+      --accent: #7aa7f5;
+      --chip-bg: #1f2a3d;
+      --chip-border: #34476a;
+      --chip-alt-bg: #332c1f;
+      --chip-alt-border: #5a4c31;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 40px 16px 64px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .lead { margin: 0 0 28px; color: var(--muted); }
+  a { color: var(--accent); }
+  label, .label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px 14px;
+    font: inherit;
+    font-size: 1.05rem;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    resize: vertical;
+  }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+  .examples { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 32px; }
+  .examples button {
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 4px 12px;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .examples button:hover { border-color: var(--accent); color: var(--accent); }
+  .result-head, .input-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .input-head button {
+    font: inherit;
+    font-size: 0.85rem;
+    padding: 0;
+    color: var(--accent);
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  .input-head button:hover { text-decoration: underline; }
+  .input-head button:disabled { color: var(--muted); cursor: default; text-decoration: none; }
+  .count { font-size: 0.85rem; color: var(--muted); }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 56px;
+    padding: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .chip {
+    padding: 2px 8px;
+    font-size: 1.05rem;
+    white-space: pre;
+    background: var(--chip-bg);
+    border: 1px solid var(--chip-border);
+    border-radius: 6px;
+  }
+  .chip:nth-child(even) { background: var(--chip-alt-bg); border-color: var(--chip-alt-border); }
+  .chip.space { color: var(--muted); }
+  .empty { color: var(--muted); font-size: 0.95rem; align-self: center; }
+  .joined { display: flex; gap: 8px; margin-top: 12px; }
+  .joined output {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9rem;
+    overflow-x: auto;
+    white-space: pre;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .joined button {
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 0 14px;
+    color: #fff;
+    background: var(--accent);
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  @media (prefers-color-scheme: dark) { .joined button { color: #10131a; } }
+  footer { margin-top: 48px; font-size: 0.85rem; color: var(--muted); }
+  footer code { font-size: 0.85em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>TinySegmenter Demo</h1>
+  <p class="lead">
+    A compact Japanese tokenizer, running entirely in your browser.
+    Source: <a href="https://github.com/kampersanda/tiny-segmenter">kampersanda/tiny-segmenter</a>
+  </p>
+
+  <div class="input-head">
+    <label for="input">Input</label>
+    <button type="button" id="clear">Clear</button>
+  </div>
+  <textarea id="input" spellcheck="false">私の名前は中野です</textarea>
+
+  <div class="examples" id="examples">
+    <button type="button">私の名前は中野です</button>
+    <button type="button">今日は良い天気なので散歩に行きます。</button>
+    <button type="button">東京スカイツリーの高さは634メートルです。</button>
+    <button type="button">一億2000万円を千二百八十回に分けて払う</button>
+    <button type="button">GitHubでPull Requestを作成してからmainにmergeします。</button>
+  </div>
+
+  <div class="result-head">
+    <span class="label">Segments</span>
+    <span class="count" id="count"></span>
+  </div>
+  <div class="chips" id="chips" aria-live="polite"></div>
+
+  <div class="joined">
+    <output id="joined"></output>
+    <button type="button" id="copy">Copy</button>
+  </div>
+
+  <footer>
+    <p>
+      Install: <code>npm install @kampersanda/tiny-segmenter</code><br>
+      Based on <a href="http://chasen.org/~taku/software/TinySegmenter/">TinySegmenter</a> by Taku Kudo.
+    </p>
+  </footer>
+</main>
+
+<script src="dist/tiny-segmenter-0.3.0.js"></script>
+<script>
+  (function () {
+    var segmenter = new TinySegmenter();
+    var input = document.getElementById("input");
+    var chips = document.getElementById("chips");
+    var count = document.getElementById("count");
+    var joined = document.getElementById("joined");
+    var copy = document.getElementById("copy");
+    var clear = document.getElementById("clear");
+
+    function render() {
+      var text = input.value;
+      var segments = text ? segmenter.segment(text) : [];
+      chips.textContent = "";
+      if (segments.length === 0) {
+        var empty = document.createElement("span");
+        empty.className = "empty";
+        empty.textContent = "Type some Japanese text above.";
+        chips.appendChild(empty);
+      }
+      segments.forEach(function (seg) {
+        var chip = document.createElement("span");
+        chip.className = /^\s+$/.test(seg) ? "chip space" : "chip";
+        chip.textContent = seg.replace(/\n/g, "↵");
+        chips.appendChild(chip);
+      });
+      count.textContent = segments.length + (segments.length === 1 ? " segment" : " segments");
+      joined.textContent = segments.join(" | ");
+      clear.disabled = text === "";
+    }
+
+    input.addEventListener("input", render);
+
+    document.getElementById("examples").addEventListener("click", function (e) {
+      if (e.target.tagName !== "BUTTON") return;
+      input.value = e.target.textContent;
+      render();
+      input.focus();
+    });
+
+    clear.addEventListener("click", function () {
+      input.value = "";
+      render();
+      input.focus();
+    });
+
+    copy.addEventListener("click", function () {
+      navigator.clipboard.writeText(joined.textContent).then(function () {
+        copy.textContent = "Copied";
+        setTimeout(function () { copy.textContent = "Copy"; }, 1200);
+      });
+    });
+
+    render();
+  })();
+</script>
+</body>
+</html>

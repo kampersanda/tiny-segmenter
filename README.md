@@ -4,6 +4,8 @@ An independently maintained package based on [TinySegmenter](http://chasen.org/~
 
 This package is published separately from the unscoped `tiny-segmenter` npm package.
 
+Try it in your browser: https://kampersanda.github.io/tiny-segmenter/
+
 ## Install
 
 ```shell
