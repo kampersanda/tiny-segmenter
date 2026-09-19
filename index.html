@@ -110,8 +110,10 @@
     border: 1px solid var(--chip-border);
     border-radius: 6px;
   }
-  .chip:nth-child(even) { background: var(--chip-alt-bg); border-color: var(--chip-alt-border); }
+  .chip:nth-of-type(even) { background: var(--chip-alt-bg); border-color: var(--chip-alt-border); }
   .chip.space { color: var(--muted); }
+  .break { flex-basis: 100%; height: 0; }
+  .break + .break { height: 0.75em; }
   .empty { color: var(--muted); font-size: 0.95rem; align-self: center; }
   .joined { display: flex; gap: 8px; margin-top: 12px; }
   .joined output {
@@ -289,9 +291,17 @@
         chip.className = /^\s+$/.test(seg) ? "chip space" : "chip";
         chip.textContent = seg.replace(/\n/g, "↵");
         chips.appendChild(chip);
+        for (var n = seg.split("\n").length - 1; n > 0; n--) {
+          var br = document.createElement("div");
+          br.className = "break";
+          chips.appendChild(br);
+        }
       });
       count.textContent = segments.length + (segments.length === 1 ? " segment" : " segments");
-      joined.textContent = segments.join(" | ");
+      joined.textContent = segments.reduce(function (acc, seg, i) {
+        var sep = i === 0 || /\n/.test(seg) || /\n/.test(segments[i - 1]) ? "" : " | ";
+        return acc + sep + seg;
+      }, "");
       clear.disabled = text === "";
     }
 
