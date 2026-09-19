@@ -1,6 +1,6 @@
 {
   "name": "@kampersanda/tiny-segmenter",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A compact Japanese tokenizer based on Taku Kudo's TinySegmenter",
   "main": "lib/index.js",
   "files": [
